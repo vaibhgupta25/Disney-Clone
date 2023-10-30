@@ -1,13 +1,15 @@
 import React from "react";
 import styled from "styled-components";
-import ImgSlider from "./ImgSlider";
-import Viewer from "./Viewer";
-import Recommends from "./Recommends";
+import ImgSlider from "../components/ImgSlider";
+import Viewer from "../components/Viewer";
+import Recommends from "../components/Recommends";
 import { useEffect } from "react";
 import { movieRequest } from "../helper/serverHelper";
 import { useDispatch, useSelector } from "react-redux";
 import { setMovies } from "../features/movie/movieSlice";
 import { selectUserName } from "../features/user/userSlice";
+import db from "../firebase";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import {
   selectRecommend,
   selectNewDisney,
@@ -18,25 +20,27 @@ import {
 export default function Home() {
   const dispatch = useDispatch();
   const userName = useSelector(selectUserName);
-  let recommend = [];
-  let newDisney = [];
-  let trending = [];
-  let original = [];
   const recommendMovies = useSelector(selectRecommend);
   const newDisneyMovies = useSelector(selectNewDisney);
   const trendingMovies = useSelector(selectTrending);
   const originalMovies = useSelector(selectOriginal);
-
+  
   useEffect(() => {
+    let recommend = [];
+    let newDisney = [];
+    let trending = [];
+    let original = [];
     const fetchData = async () => {
       try {
-        const movies = await movieRequest("movie/");
-        movies.map((movie) => {
-          if (movie.type === "new") newDisney = [...newDisney, movie];
-          else if (movie.type === "recommend")
-            recommend = [...recommend, movie];
-          else if (movie.type === "original") original = [...original, movie];
-          else trending = [...trending, movie];
+        const movies = await getDocs(collection(db, "movies"));
+        movies.forEach((movie) => {
+          if (movie.data().type === "new")
+            newDisney = [...newDisney, { id: movie.id, ...movie.data() }];
+          else if (movie.data().type === "recommend")
+            recommend = [...recommend, { id: movie.id, ...movie.data() }];
+          else if (movie.data().type === "original")
+            original = [...original, { id: movie.id, ...movie.data() }];
+          else trending = [...trending, { id: movie.id, ...movie.data() }];
         });
         dispatch(
           setMovies({
@@ -47,12 +51,13 @@ export default function Home() {
           })
         );
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     };
 
     try {
       fetchData();
+      // console.log(recommendMovies.size())
     } catch (error) {
       console.log(error);
     }

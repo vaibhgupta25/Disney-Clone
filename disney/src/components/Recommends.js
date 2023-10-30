@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
 
 export default function Recommends({ title, recommend }) {
-  // console.log(recommend);
   return (
     <>
       <Container>
@@ -15,10 +14,9 @@ export default function Recommends({ title, recommend }) {
           </Loading>
         ) : (
           <Content>
-            {recommend.map((movie,key) => (
-              <Wrap key={movie._id}>
-                {console.log(movie._id)}
-                <Link to={"/detail/"+movie._id}>
+            {recommend.map((movie, key) => (
+              <Wrap key={key}>
+                <Link to={"/detail/" + movie.id}>
                   <img src={movie.cardImg} alt="" />
                 </Link>
               </Wrap>

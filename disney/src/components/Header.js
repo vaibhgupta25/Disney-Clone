@@ -24,7 +24,6 @@ export default function Header() {
         <Navigate to="/" replace={true} />;
       }
     });
-    // console.log(username);
   }, [username]);
 
   const handleAuth = () => {
